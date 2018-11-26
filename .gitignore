@@ -1,0 +1,7 @@
+*.pyc
+output/*
+oxford_queries/*
+oxford_output/*
+paris_output/*
+tf_log/*
+cpp/compute_ap
