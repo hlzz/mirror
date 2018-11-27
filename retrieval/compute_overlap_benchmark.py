@@ -69,4 +69,3 @@ if __name__ == '__main__':
     overlap_result = sys.argv[2]
     ground_truth_file = sys.argv[3]
     compute_GL3D_map(image_list, overlap_result, ground_truth_file)
-

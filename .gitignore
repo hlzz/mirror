@@ -3,5 +3,6 @@ output/*
 oxford_queries/*
 oxford_output/*
 paris_output/*
+data/model/*
 tf_log/*
 cpp/compute_ap
