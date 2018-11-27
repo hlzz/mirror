@@ -32,7 +32,7 @@ Currently we release the 9368 test images for evaluation (see #Test). The full d
 Training code will be released soon.
 
 ## Test
-First download the model files using the provided script, suppose you are in the root directory of the project `$MIRROR_ROOT`
+First download the [model files](https://s3-ap-southeast-1.amazonaws.com/awsiostest-deployments-mobilehub-806196172/ACCV2018/model.zip) using the following command, suppose you are in the root directory of the project `$MIRROR_ROOT`
 ```bash
 sh ./data/model/download_models.sh
 ```
@@ -51,7 +51,7 @@ We have additionally trained a ResNet-50 model not documented in the original pa
  | ResNet-50 + QE | -              | 0.894              | 0.858              |   0.881     |
 
 ### Note on GL3D
-Download the `896 x 896` GL3D test images (around 4GB) sand unzip them to your GL3D image folder (suppose it is `$MIRROR_ROOT/data/gl3d/`), and them run the commands for testing. The detailed instruction is given below.
+Download the [GL3D test images](https://s3-ap-southeast-1.amazonaws.com/awsiostest-deployments-mobilehub-806196172/GL3D/eval_data.zip) of size `896 x 896` (around 3.7GB) and unzip them to your GL3D image folder (suppose it is `$MIRROR_ROOT/data/gl3d/`), and them run the commands for testing. The detailed instruction is given below.
 ```bash
 # Download evaluation dataset and unzip
 wget https://s3-ap-southeast-1.amazonaws.com/awsiostest-deployments-mobilehub-806196172/GL3D/eval_data.zip
