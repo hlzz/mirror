@@ -1,4 +1,5 @@
 *.pyc
+.vscode/*
 output/*
 oxford_queries/*
 oxford_output/*
