@@ -76,7 +76,7 @@ def get_net_func(net_type):
     return fn
 
 
-def multi_scale_feature(rmac_feat, fn, image, output_tensor_name, rmac_step, reduce_method, deploy):
+def multi_scale_feature(rvec, fn, image, output_tensor_name, rmac_step, reduce_method, deploy):
     # TODO: allow dynamic input size.
     if FLAGS.img_size == 896 or FLAGS.img_size == 1024:
         scale_num = 3
@@ -93,7 +93,7 @@ def multi_scale_feature(rmac_feat, fn, image, output_tensor_name, rmac_step, red
             scale_net = fn({'data': scale_img}, is_training=False, reuse=True, fcn=True)
             scale_feat_map = scale_net.get_output_by_name(output_tensor_name)
             scale_rvec = _rmac(scale_feat_map, rmac_step, reduce_method, deploy)
-            rvec = tf.concat([rmac_feat, scale_rvec], axis=-1)
+            rvec = tf.concat([rvec, scale_rvec], axis=-1)
     return rvec
 
 

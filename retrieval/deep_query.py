@@ -308,7 +308,7 @@ def read_feature(feature_list, euclidean_dist=False, rmac=False, mac=False, num_
     return num_regions, feature, names
 
 
-def whitening(feat, num_regions, pca_thresh=None, out_dim=None, pca_file=None, pca=None):
+def whitening(feat, num_regions, pca_thresh=None, out_dim=None, pca=None):
     """PCA whitening."""
     if pca is not None:
         # use pre-computed PCA
@@ -327,9 +327,6 @@ def whitening(feat, num_regions, pca_thresh=None, out_dim=None, pca_file=None, p
             pca = PCA(n_components=out_dim, whiten=True, copy=True, random_state=0)
             pca.fit(feat)
             trans_feat = pca.transform(feat)
-            if pca_file is not None:
-                print(Notify.INFO, 'PCA file output to', pca_file, Notify.ENDC)
-                joblib.dump(pca, pca_file)
     trans_feat = normalize(trans_feat)
     return trans_feat, pca
 
@@ -396,7 +393,8 @@ def mask_prediction(rv0, rv1, path0, path1):
     #plt.show()
 
 
-def query(query_list, feature_list, out_dir, top=200, pca_thresh=0.9, out_dim=None, qe_fn=None, gt_dir=None,
+def query(query_list, feature_list, out_dir, top=200, 
+          pca_thresh=0.9, out_dim=None, pca_file='-1', qe_fn=None, gt_dir=None,
           mask_pred=False, euclidean_dist=False, rmac=False, mac=False, aml=False):
 
     """Query by list."""
@@ -426,10 +424,19 @@ def query(query_list, feature_list, out_dir, top=200, pca_thresh=0.9, out_dim=No
     print(Notify.INFO, '# Dim', db_feat.shape[-1], Notify.ENDC)
     print(Notify.INFO, '# Reginal vector', num_regions, Notify.ENDC)
     # perform PCA whitening.
-    use_pca = (pca_thresh is not None or out_dim is not None) and len(image_names) > out_dim
+    use_pca = (pca_thresh is not None or out_dim is not None or pca_file != '-1') and len(image_names) > out_dim
+
+    if pca_file != '-1':
+        pca_data = np.load(pca_file).item()
+        pca = PCA(whiten=True, copy=True, random_state=0)
+        pca.mean_ = pca_data['mean']
+        pca.components_ = pca_data['eigvec']
+        pca.explained_variance_ = pca_data['eigval']
+    else:
+        pca = None
 
     if use_pca:
-        db_trans_feat, pca = whitening(db_feat, num_regions, pca_thresh, out_dim, pca_file=None)
+        db_trans_feat, pca = whitening(db_feat, num_regions, pca_thresh, out_dim, pca=pca)
         print(Notify.INFO, 'PCA-ed feature dim', db_trans_feat.shape[1], Notify.ENDC)
     else:
         print(Notify.WARNING, 'No whitening', Notify.ENDC)
@@ -505,6 +512,8 @@ if __name__ == '__main__':
                         type=float, default=None, help='threshold for pca')
     PARSER.add_argument('--out_dim', dest='out_dim', type=int,
                         default=None, help='dimension of final feature, control whether and how to do pca')
+    PARSER.add_argument('--pca_file', dest='pca_file', type=str,
+                        default='-1', help='path to pre-computed pca file')
     PARSER.add_argument('--qe', dest='qe', type=int,
                         default=None, help='perform query expansion with this many top results')
     PARSER.add_argument('--et', dest='et', type=int,
@@ -541,6 +550,6 @@ if __name__ == '__main__':
 
     # compute aggregated features and run the evaluation
     mAP = query(QUERY_LIST, FEATURE_LIST, ARGS.out_dir, ARGS.top,
-                ARGS.pca_thresh, ARGS.out_dim, QE_FN, ARGS.gt_dir,
+                ARGS.pca_thresh, ARGS.out_dim, ARGS.pca_file, QE_FN, ARGS.gt_dir,
                 ARGS.mask_pred, ARGS.euclidean_dist, ARGS.rmac, ARGS.mac, ARGS.aml)
     print(Notify.INFO, 'mAP', mAP, Notify.ENDC)

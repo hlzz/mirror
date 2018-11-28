@@ -5,6 +5,7 @@ step=720000 #400000
 ckpt_save_dir=./data/model/model.ckpt 
 img_size=896
 feature_dim=256
+pca_file='-1' #pca_file=./data/model/pca_mat_$step'_'$feature_dim'd.npy'
 gl3d_root_dir=/path/to/your/gl3d/root/dir
 test_image_list=./data/gl3d/eval_img_list.txt
 test_feature_list=./data/gl3d/eval_feature_list.txt
@@ -41,7 +42,7 @@ rmac_step=1,2
 #ls -d $PWD/$db_output_path/*.npy > $db_output_path/feature_list
 #
 ## evaluate
-#python retrieval/deep_query.py --out_dir $output_dir --feature_list $oxford_feature_list \
+#python retrieval/deep_query.py --out_dir $output_dir --feature_list $oxford_feature_list --pca_file $pca_file \
 #    --query_list oxford_queries/query_list --gt_dir $ground_truth_folder --top 6500 --out_dim $feature_dim --qe 10 --et 2 #--pca_thresh 0.90 #--rmac 
 #
 ## remove temporary feature files
