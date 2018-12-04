@@ -25,7 +25,7 @@ The code base has been tested under TensorFlow 1.5 (CUDA 8.0) to TensorFlow (CUD
 
 The GL3D contains 90,590 high-resolution images in 378 different scenes. Each scene contains 50 to 1,000 images with large geometric overlaps, covering urban, rural area, or scenic spots captured by drones from multiple scales and perspectives. Several small objects are also included to enrich the data diversity. Each scene data is reconstructed to generate a triangular mesh model by the state-of-the-art 3D reconstruction pipeline.
 
-Currently we release the 9368 test images for evaluation (see #Test). The full dataset is in preparation.
+Currently we release the 9368 test images for evaluation (see #Test). The full dataset can be found [here](https://github.com/lzx551402/GL3D).
 
 
 ## Train
