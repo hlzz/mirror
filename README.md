@@ -18,7 +18,65 @@ Feel free to submit issues if you have any questions.
 
 
 ## Prerequisites
-The code base has been tested under TensorFlow 1.5 (CUDA 8.0) to TensorFlow (CUDA 9.0), using Python 2.7.12.
+The code base has been tested under TensorFlow 1.5 (CUDA 8.0) to TensorFlow 1.7 (CUDA 9.0), using Python 2.7.12.
+
+## First Try
+Mirror is extremely easy to use, first download the [model files](https://s3-ap-southeast-1.amazonaws.com/awsiostest-deployments-mobilehub-806196172/ACCV2018/model.zip) using the following command, suppose you are in the root directory of the project `$MIRROR_ROOT`
+```bash
+sh ./data/model/download_models.sh
+```
+
+Suppose you have a folder containing the images of the same scene, take [fountain-P11](http://documents.epfl.ch/groups/c/cv/cvlab-unit/www/data/multiview/denseMVS.html) as an example (or any other image folder by your hand), 
+generate the image list by `cd` into that folder and output absolute image paths to a file:
+```bash
+cd /path/to/fountain-p11
+ls -d $PWD/*.png > image_list
+```
+
+Then generate the .npy features:
+```bash
+python retrieval/inference.py --img_list /home/tianwei/Data/fountain-p11/image_list --ckpt_step 720000 --img_size 896 --net resnet-50 --pool MAX --rmac_step 1,3,5 --ckpt_path ./data/model/model.ckpt
+```
+
+Then output all the absolute paths of feature files (*.npy) to a file and query:
+```bash
+ls -d $PWD/*.npy > feature_list
+python retrieval/deep_query.py --feature_list /home/tianwei/Data/fountain-p11/feature_list --out_dir ./output --top 20 --out_dim 256
+```
+
+You should now be able to see a `match_pairs` file in the `output` folder, recording the ranking and corresponding similarity scores (in range [0, 1] where 1 means identical)
+between pairs of images (represented by index).
+```bash
+0 0 1.0
+0 1 0.9598151070731027
+0 2 0.9315839494977679
+0 3 0.9064583369663783
+0 4 0.8789794376918247
+0 9 0.8777283804757254
+0 8 0.868733160836356
+0 5 0.8614536830357142
+0 10 0.8602364676339286
+0 7 0.8555836813790457
+0 6 0.8524237496512277
+1 1 1.0
+1 2 0.9604712350027902
+1 0 0.958723885672433
+1 3 0.9399954659598214
+1 4 0.9106133052280971
+... ...
+```
+
+This is the basic usage of this repo. If you cannot get it done, please submit a issue in the issue tracker and let us help you! If you find this work useful in your production environment or research paper, please cite
+```bash
+@inproceedings{shen2018mirror,
+    author={Shen, Tianwei and Luo, Zixin and Zhou, Lei and Zhang, Runze and Zhu, Siyu and Fang, Tian and Quan, Long},
+    title={Matchable Image Retrieval by Learning from Surface Reconstruction},
+    booktitle={The Asian Conference on Computer Vision (ACCV},
+    year={2018},
+}
+```
+
+The following describe our dataset and results presented in the paper. 
 
 ## GL3D dataset
 ![GL3D overview](misc/figures/dataset_view.jpg)
@@ -32,12 +90,6 @@ Currently we release the 9368 test images for evaluation (see #Test). The full d
 Training code will be released soon.
 
 ## Test
-First download the [model files](https://s3-ap-southeast-1.amazonaws.com/awsiostest-deployments-mobilehub-806196172/ACCV2018/model.zip) using the following command, suppose you are in the root directory of the project `$MIRROR_ROOT`
-```bash
-sh ./data/model/download_models.sh
-```
-
-
 Please refer to `pipeline.sh` for using the image retrieval pipeline. We release two trained models to demonstrate the use. 
 The googlenet model can be used to reproduce the results in the paper, which achieves 0.758 mAP@200 on GL3D, 0.768 mAP on Oxford5K 
 and 0.820 on Paris6K using the default settings in `pipeline.sh`.
