@@ -5,7 +5,8 @@ step=720000 #400000
 ckpt_save_dir=./data/model/model.ckpt 
 img_size=896
 feature_dim=256
-pca_file='-1' #pca_file=./data/model/pca_mat_$step'_'$feature_dim'd.npy'
+#pca_file='-1' 
+pca_file=./data/model/pca_mat_$step'_'$feature_dim'd.npy'
 gl3d_root_dir=/path/to/your/gl3d/root/dir
 test_image_list=./data/gl3d/eval_img_list.txt
 test_feature_list=./data/gl3d/eval_feature_list.txt
@@ -21,33 +22,38 @@ output_dir=./output
 #= oxford or paris =======================================================================================================================
 dataset=oxford  #paris 
 oxford_image_list=/path/to/your/oxford/image/list
-ground_truth_folder=/path/to/ground/truth/folder
-query_output_path=oxford_queries
+ground_truth_folder=./data/$oxford/groundtruth
+query_output_path=$dataset'_queries'
 db_output_path=$dataset'_output'
 oxford_feature_list=$db_output_path/feature_list
 oxford_query_feat_list=$query_output_path/query_list
 img_size=896
 rmac_step=1,2
+output_dir=./output
 
-## extract query features
-#rm -rf $query_output_path
-#python retrieval/inference.py --img_list $oxford_image_list --oxford_gt $ground_truth_folder --net $net_type --pool $pooling --rmac_step $rmac_step \
-#    --ckpt_step $step --ckpt_path $ckpt_save_dir --img_size $img_size --multi_scale
-#ls -d $PWD/$query_output_path/*.npy > $query_output_path/query_list
-#
-## extract db features
-#rm -rf $db_output_path
-#python retrieval/inference.py --output_folder $db_output_path --img_list $oxford_image_list --net $net_type --pool $pooling --rmac_step $rmac_step \
-#    --ckpt_step $step --ckpt_path $ckpt_save_dir --img_size $img_size --multi_scale
-#ls -d $PWD/$db_output_path/*.npy > $db_output_path/feature_list
-#
-## evaluate
-#python retrieval/deep_query.py --out_dir $output_dir --feature_list $oxford_feature_list --pca_file $pca_file \
-#    --query_list oxford_queries/query_list --gt_dir $ground_truth_folder --top 6500 --out_dim $feature_dim --qe 10 --et 2 #--pca_thresh 0.90 #--rmac 
-#
-## remove temporary feature files
-#rm -rf $query_output_path
-#rm -rf $db_output_path
+# extract query features
+rm -rf $query_output_path
+python retrieval/inference.py --img_list $oxford_image_list --oxford_gt $ground_truth_folder --net $net_type --pool $pooling \
+    --ckpt_step $step --ckpt_path $ckpt_save_dir --img_size $img_size --rmac_step $rmac_step --multi_scale 
+ls -d $PWD/$query_output_path/*.npy > $query_output_path/query_list
+
+# extract db features
+rm -rf $db_output_path
+python retrieval/inference.py --output_folder $db_output_path --img_list $oxford_image_list --net $net_type --pool $pooling \
+    --ckpt_step $step --ckpt_path $ckpt_save_dir --img_size $img_size --rmac_step $rmac_step --multi_scale 
+ls -d $PWD/$db_output_path/*.npy > $db_output_path/feature_list
+
+# query
+python retrieval/deep_query.py --out_dir $output_dir --feature_list $oxford_feature_list \
+    --query_list oxford_queries/query_list --top 6500 --out_dim $feature_dim --qe 10 --et 2 #--pca_thresh 0.90 #--rmac --pca_file $pca_file 
+
+# evaluate
+python retrieval/oxford_bench.py data/$dataset/query_list.txt data/$dataset/image_list.txt $output_dir/match_pairs $ground_truth_folder \
+    --output_dir $output_dir
+
+# remove temporary feature files
+rm -rf $query_output_path
+rm -rf $db_output_path
 #=======================================================================================================================================
 
 

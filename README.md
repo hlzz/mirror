@@ -16,6 +16,8 @@ In [ACCV 2018](http://accv2018.net).
 
 Feel free to submit issues if you have any questions.
 
+### Update 01/11/2019
+We've made the benchmark of Oxford (or Paris) simply. You only need to prepare the oxford dataset images (download from the official [website](http://www.robots.ox.ac.uk/~vgg/data/oxbuildings/)) and run `pipeline.sh', see "Note on Oxford5K or Paris6K" for details. Using the default settings in the script, you can easily achieve **0.915** mAP on Oxford5K.
 
 ## Prerequisites
 The code base has been tested under TensorFlow 1.5 (CUDA 8.0) to TensorFlow 1.7 (CUDA 9.0), using Python 2.7.12.
@@ -140,6 +142,44 @@ compile the C++ program `compute_ap` for computing the average precision (AP).
 ```bash
 cd cpp
 g++ -o compute_ap compute_ap.cpp
+```
+
+The commands are similar to GL3D:
+```bash
+dataset=oxford  #paris 
+oxford_image_list=/path/to/your/oxford/image/list
+ground_truth_folder=./data/$oxford/groundtruth
+query_output_path=$dataset'_queries'
+db_output_path=$dataset'_output'
+oxford_feature_list=$db_output_path/feature_list
+oxford_query_feat_list=$query_output_path/query_list
+img_size=896
+rmac_step=1,2
+output_dir=./output
+
+# extract query features
+rm -rf $query_output_path
+python retrieval/inference.py --img_list $oxford_image_list --oxford_gt $ground_truth_folder --net $net_type --pool $pooling \
+    --ckpt_step $step --ckpt_path $ckpt_save_dir --img_size $img_size --rmac_step $rmac_step --multi_scale 
+ls -d $PWD/$query_output_path/*.npy > $query_output_path/query_list
+
+# extract db features
+rm -rf $db_output_path
+python retrieval/inference.py --output_folder $db_output_path --img_list $oxford_image_list --net $net_type --pool $pooling \
+    --ckpt_step $step --ckpt_path $ckpt_save_dir --img_size $img_size --rmac_step $rmac_step --multi_scale 
+ls -d $PWD/$db_output_path/*.npy > $db_output_path/feature_list
+
+# query
+python retrieval/deep_query.py --out_dir $output_dir --feature_list $oxford_feature_list \
+    --query_list oxford_queries/query_list --top 6500 --out_dim $feature_dim --qe 10 --et 2 #--pca_thresh 0.90 #--rmac --pca_file $pca_file 
+
+# evaluate
+python retrieval/oxford_bench.py data/$dataset/query_list.txt data/$dataset/image_list.txt $output_dir/match_pairs $ground_truth_folder \
+    --output_dir $output_dir
+
+# remove temporary feature files
+rm -rf $query_output_path
+rm -rf $db_output_path
 ```
 
 ### Note on Holidays
