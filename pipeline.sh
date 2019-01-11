@@ -21,8 +21,8 @@ output_dir=./output
 
 #= oxford or paris =======================================================================================================================
 dataset=oxford  #paris 
-oxford_image_list=/path/to/your/oxford/image/list
-ground_truth_folder=./data/$oxford/groundtruth
+oxford_image_list=/home/tianwei/Data/oxford5k/image_list #/path/to/your/oxford/image/list
+ground_truth_folder=./data/$dataset/groundtruth
 query_output_path=$dataset'_queries'
 db_output_path=$dataset'_output'
 oxford_feature_list=$db_output_path/feature_list

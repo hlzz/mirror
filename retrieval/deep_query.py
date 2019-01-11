@@ -191,35 +191,6 @@ def match_gpu(query_features, db_features, num_regions, top, euclidean_dist=Fals
     return query_result
 
 
-def save_match_gpu(query_features, db_features, num_regions, top, euclidean_dist=False, aml=False):
-    if db_features is not None:
-        assert query_features.shape[1] == db_features.shape[1]
-
-    query_features_ph = tf.placeholder(tf.float32, shape=(None, None), name='query_feat_ph')
-    if db_features is None:
-        db_features_ph = query_features_ph
-        db_features = query_features
-    else:
-        db_features_ph = tf.placeholder(tf.float32, shape=(None, None), name='db_feat_ph')
-
-    # a weird bug with tensorflow 1.3, otherwise it is of type 'Dimension'
-    feat_dim = int(db_features.shape[1])
-    num_query = int(int(query_features.shape[0]) / num_regions)
-    num_db = int(int(db_features.shape[0]) / num_regions)
-    top_k = tf.placeholder(tf.float32, shape=(), name='top_k')
-
-    config = tf.ConfigProto()
-    config.gpu_options.allow_growth = True
-    with tf.Session(config=config) as sess:
-        tf_output = _prc_match_graph(query_features_ph, db_features_ph, num_regions, top_k, euclidean_dist, aml)
-
-        variables = [n.name for n in tf.get_default_graph().as_graph_def().node]
-        print(variables)
-        output_pb_name = 'prmac'
-        tf.train.write_graph(sess.graph_def, './', output_pb_name+'.pb', as_text=False)
-    exit(-1)
-
-
 def read_feature(feature_list, euclidean_dist=False, rmac=False, mac=False, num_rv=None):
     """Read features stored in .npy."""
     names = []
@@ -394,7 +365,7 @@ def mask_prediction(rv0, rv1, path0, path1):
 
 
 def query(query_list, feature_list, out_dir, top=200, 
-          pca_thresh=0.9, out_dim=None, pca_file='-1', qe_fn=None, gt_dir=None,
+          pca_thresh=0.9, out_dim=None, pca_file='-1', qe_fn=None,
           mask_pred=False, euclidean_dist=False, rmac=False, mac=False, aml=False):
 
     """Query by list."""
@@ -464,12 +435,8 @@ def query(query_list, feature_list, out_dir, top=200,
     if query_list is None:
         db_trans_feat = None
     
-    if ARGS.tf_pytool == None:
-        query_result = match_gpu(query_trans_feat, db_trans_feat, num_regions,
-                                 top, euclidean_dist=euclidean_dist, aml=aml)
-    else:
-        save_match_gpu(query_trans_feat, db_trans_feat, num_regions,
-                       top, euclidean_dist=euclidean_dist, aml=aml)
+    query_result = match_gpu(query_trans_feat, db_trans_feat, num_regions,
+                             top, euclidean_dist=euclidean_dist, aml=aml)
     end = time.time()
     print(Notify.INFO, 'Time cost in matching', end - start, 's', Notify.ENDC)
 
@@ -485,14 +452,9 @@ def query(query_list, feature_list, out_dir, top=200,
         inds = query_result[i][0]
         dists = query_result[i][1]
         content.extend([' '.join([str(i), str(inds[j]), str(dists[j]/num_regions)]) for j in range(len(inds))])
-        if gt_dir is not None:
-            aps.append(get_ap(inds, query_names[i], image_names, gt_dir, out_dir))
     write_list(content, match_index_file)
 
-    if gt_dir is not None:
-        return np.array(aps).mean()
-    else:
-        return 0
+    return 0
 
 
 if __name__ == '__main__':
@@ -518,10 +480,6 @@ if __name__ == '__main__':
                         default=None, help='perform query expansion with this many top results')
     PARSER.add_argument('--et', dest='et', type=int,
                         default=0, help='query expansion times')
-    PARSER.add_argument('--gt_dir', dest='gt_dir', type=str,
-                        default=None, help='directory containing groundtruth files')
-    PARSER.add_argument('--tf_pytool', dest='tf_pytool', type=str,
-                        default=None, help='tensorflow python scripts')
     PARSER.add_argument('--mask_pred', dest='mask_pred', default=False,
                         action='store_true', help='whether to predict and visualize mask')
     PARSER.add_argument('--euclidean_dist', dest='euclidean_dist', default=False,
@@ -550,6 +508,5 @@ if __name__ == '__main__':
 
     # compute aggregated features and run the evaluation
     mAP = query(QUERY_LIST, FEATURE_LIST, ARGS.out_dir, ARGS.top,
-                ARGS.pca_thresh, ARGS.out_dim, ARGS.pca_file, QE_FN, ARGS.gt_dir,
+                ARGS.pca_thresh, ARGS.out_dim, ARGS.pca_file, QE_FN,
                 ARGS.mask_pred, ARGS.euclidean_dist, ARGS.rmac, ARGS.mac, ARGS.aml)
-    print(Notify.INFO, 'mAP', mAP, Notify.ENDC)
