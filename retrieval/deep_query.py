@@ -160,18 +160,11 @@ def _prc_match_graph(query_features, db_features, num_regions, top_k, euclidean_
 def match_gpu(query_features, db_features, num_regions, top, euclidean_dist=False, aml=False):
     """GPU supported PR-MAC."""
     tf.reset_default_graph()
-
-    if db_features is not None:
-        assert query_features.shape[1] == db_features.shape[1]
-
+    assert query_features.shape[1] == db_features.shape[1]
     query_features = tf.constant(query_features, dtype=tf.float32, name='query_features')
-    if db_features is None:
-        db_features = query_features
-    else:
-        db_features = tf.constant(db_features, dtype=tf.float32, name='db_features')
+    db_features = tf.constant(db_features, dtype=tf.float32, name='db_features')
 
     # a weird bug with tensorflow 1.3, otherwise it is of type 'Dimension'
-    feat_dim = int(db_features.shape[1])
     num_query = int(int(query_features.shape[0]) / num_regions)
     num_db = int(int(db_features.shape[0]) / num_regions)
     top_k = top
@@ -432,9 +425,6 @@ def query(query_list, feature_list, out_dir, top=200,
 
     print(Notify.INFO, 'Compute nn distance', Notify.ENDC)
     start = time.time()
-    if query_list is None:
-        db_trans_feat = None
-    
     query_result = match_gpu(query_trans_feat, db_trans_feat, num_regions,
                              top, euclidean_dist=euclidean_dist, aml=aml)
     end = time.time()
@@ -453,7 +443,6 @@ def query(query_list, feature_list, out_dir, top=200,
         dists = query_result[i][1]
         content.extend([' '.join([str(i), str(inds[j]), str(dists[j]/num_regions)]) for j in range(len(inds))])
     write_list(content, match_index_file)
-
     return 0
 
 
