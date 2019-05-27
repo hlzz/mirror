@@ -89,7 +89,7 @@ Currently we release the 9368 test images for evaluation (see #Test). The full d
 
 
 ## Train
-See `retrieval/train.py' for an example. It also needs the GL3D dataset to be aligned with our internal file structure.
+See `retrieval/train.py` for an example. It also needs the GL3D dataset to be aligned with our internal file structure.
 
 ## Test
 Please refer to `pipeline.sh` for using the image retrieval pipeline. We release two trained models to demonstrate the use. 
