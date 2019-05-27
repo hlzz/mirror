@@ -89,14 +89,15 @@ Currently we release the 9368 test images for evaluation (see #Test). The full d
 
 
 ## Train
-Training code will be released soon.
+See `retrieval/train.py' for an example. It also needs the GL3D dataset to be aligned with our internal file structure.
 
 ## Test
 Please refer to `pipeline.sh` for using the image retrieval pipeline. We release two trained models to demonstrate the use. 
 The googlenet model can be used to reproduce the results in the paper, which achieves 0.758 mAP@200 on GL3D, 0.768 mAP on Oxford5K 
 and 0.820 on Paris6K using the default settings in `pipeline.sh`.
 
-We have additionally trained a ResNet-50 model not documented in the original paper, which achieves better performance than GoogleNet on object retrieval datasets (Oxford5K and Paris6K).
+We have additionally trained a ResNet-50 model not documented in the original paper. By refined from a base model trained on [Google-Landmarks-Dataset](https://www.kaggle.com/google/google-landmarks-dataset), 
+it achieves better performance than GoogleNet on object retrieval datasets (Oxford5K and Paris6K).
 
  | Model          | GL3D (mAP@200) | Oxford5K           |  Paris6K           |   Holidays  |
  |----------------|----------------|--------------------|--------------------|-------------|
