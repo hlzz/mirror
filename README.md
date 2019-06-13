@@ -16,9 +16,6 @@ In [ACCV 2018](http://accv2018.net).
 
 Feel free to submit issues if you have any questions.
 
-### Update 01/11/2019
-We've made the benchmark of Oxford (or Paris) simply. You only need to prepare the oxford dataset images (download from the official [website](http://www.robots.ox.ac.uk/~vgg/data/oxbuildings/)) and run `pipeline.sh', see "Note on Oxford5K or Paris6K" for details. Using the default settings in the script, you can easily achieve **0.915** mAP on Oxford5K.
-
 ## Prerequisites
 The code base has been tested under TensorFlow 1.5 (CUDA 8.0) to TensorFlow 1.7 (CUDA 9.0), using Python 2.7.12.
 
@@ -89,7 +86,14 @@ Currently we release the 9368 test images for evaluation (see #Test). The full d
 
 
 ## Train
-See `retrieval/train.py` for an example. It also needs the GL3D dataset to be aligned with our internal file structure.
+See `retrieval/train.py` for an example. It also needs the GL3D dataset to be aligned with our internal file structure. The training script depends on an older version of GL3D, specifically L285-286 in `retrieval/train.py`.
+
+```python
+    image_list_path = os.path.join(FLAGS.gl3d, 'list', 'global_stats', 'global_img_list.txt')
+    train_list_path = os.path.join(FLAGS.gl3d, 'forward', 'train_list_with_mask.bin')
+```
+
+Try clone the [Gl3D dataset](https://github.com/lzx551402/GL3D), and then download the necessary files [gl3d_train.tar.gz](https://awsiostest-deployments-mobilehub-806196172.s3-ap-southeast-1.amazonaws.com/GL3D/gl3d_train.tar.gz) compatible with this training script, and put it into the GL3D root folder.
 
 ## Test
 Please refer to `pipeline.sh` for using the image retrieval pipeline. We release two trained models to demonstrate the use. 
@@ -192,6 +196,13 @@ Also checkout the following related geometric learning repositories:
 [GeoDesc](https://github.com/lzx551402/geodesc): Learning Local Descriptors by Integrating Geometry Constraints
 
 [MVSNet](https://github.com/YoYo000/MVSNet): Depth Inference for Unstructured Multi-view Stereo
+
+### Change Log:
+#### 06/13/2019
+Add training script and training data compatible with the python script.
+
+#### 01/11/2019
+We've made the benchmark of Oxford (or Paris) simply. You only need to prepare the oxford dataset images (download from the official [website](http://www.robots.ox.ac.uk/~vgg/data/oxbuildings/)) and run `pipeline.sh', see "Note on Oxford5K or Paris6K" for details. Using the default settings in the script, you can easily achieve **0.915** mAP on Oxford5K.
 
 ## License
 MIT
