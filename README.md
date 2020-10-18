@@ -20,7 +20,7 @@ Feel free to submit issues if you have any questions.
 The code base has been tested under TensorFlow 1.5 (CUDA 8.0) to TensorFlow 1.7 (CUDA 9.0), using Python 2.7.12.
 
 ## First Try
-Mirror is extremely easy to use, first download the [model files](https://s3-ap-southeast-1.amazonaws.com/awsiostest-deployments-mobilehub-806196172/ACCV2018/model.zip) using the following command, suppose you are in the root directory of the project `$MIRROR_ROOT`
+Mirror is extremely easy to use, first download the [model files](https://drive.google.com/file/d/1r33iwwAuAGu7JsFBmriK9DYReaxNyvn-/view?usp=sharing) using the following command, suppose you are in the root directory of the project `$MIRROR_ROOT`
 ```bash
 sh ./data/model/download_models.sh
 ```
@@ -198,6 +198,9 @@ Also checkout the following related geometric learning repositories:
 [MVSNet](https://github.com/YoYo000/MVSNet): Depth Inference for Unstructured Multi-view Stereo
 
 ### Change Log:
+#### 10/17/2020
+Put the [model files](https://drive.google.com/file/d/1r33iwwAuAGu7JsFBmriK9DYReaxNyvn-/view?usp=sharing) on google drive instead of aws S3. Please refer to the official GL3D dataset [page](https://github.com/lzx551402/GL3D) for downloading training and test data, in case the data links in this page are broken.
+
 #### 06/13/2019
 Add training script and training data compatible with the python script.
 
